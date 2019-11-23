@@ -11,6 +11,7 @@ import Alamofire
 
 class MasterViewController: UITableViewController {
 
+    @IBOutlet weak var dataTable: UITableView!
     var detailViewController: DetailViewController? = nil
     var objects = Storage.shared.obj
     var dataArray: [SearchITunesFormatted] = [SearchITunesFormatted]()
@@ -23,16 +24,14 @@ class MasterViewController: UITableViewController {
 //        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
 //        navigationItem.rightBarButtonItem = addButton
         
-        SearchITunes.searchMovie { (results: [SearchITunes]) in
-            for result in results {
-                
-            }
-        }
-        
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
+        
+        self.dataTable.register(UINib(nibName: "SearchITunesUITableViewCell", bundle: nil), forCellReuseIdentifier: "ITunesCell")
+        
+        makeAPICall()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -44,6 +43,38 @@ class MasterViewController: UITableViewController {
 //    func insertNewObject(_ sender: Any) {
 //        performSegue(withIdentifier: "showList", sender: self)
 //    }
+    
+    // MARK: - API Call
+    func makeAPICall() {
+        let url: String = "https://itunes.apple.com/search?term=star&amp;country=au&amp;media=movie&amp;all"
+        Alamofire.request(url) .responseData { response in
+            
+            let jsonData = response.data
+            if let notNildata = jsonData {
+                // decodes JSON
+                let tempData = try! JSONDecoder().decode(SearchITunesMain.self, from: notNildata)
+                
+                if let movieList = tempData.Search {
+                    for movie in movieList {
+                        // initialize searchITunesFormatted
+                        var movieSearchFormatted: SearchITunesFormatted = SearchITunesFormatted(trackName: "", artworkUrl60: "", trackPrice: "", primaryGenreName: "", longDescription: "")
+                        
+                        movieSearchFormatted.trackName = movie?.trackName ?? ""
+                        movieSearchFormatted.trackPrice = movie?.trackPrice ?? ""
+                        movieSearchFormatted.artworkUrl60 = movie?.artworkUrl60 ?? ""
+                        movieSearchFormatted.primaryGenreName = movie?.primaryGenreName ?? ""
+                        movieSearchFormatted.longDescription = movie?.longDescription ?? ""
+                        
+                        self.dataArray.append(movieSearchFormatted)
+                    }
+                    
+                    // reloads rows and sections in table view
+//                    self.dataTable.reloadData()
+                    
+                }
+            }
+        }
+    }
 
     // MARK: - Segues
 
@@ -96,7 +127,5 @@ class MasterViewController: UITableViewController {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
         }
     }
-
-
 }
 

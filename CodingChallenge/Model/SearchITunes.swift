@@ -45,33 +45,12 @@ struct SearchITunes: Decodable {
         self.primaryGenreName = primaryGenreName
         self.longDescription = longDescription
     }
-    static let basePath = "https://itunes.apple.com/search?term=star&amp;country=au&amp;media=movie&amp;all"
+}
     
-    static func searchMovie (completion: @escaping ([SearchITunes]) -> ()) {
-        let url = basePath
-        let request = URLRequest(url: URL(string: url)!)
-        
-        let task = URLSession.shared.dataTask(with: request) { (data: Data?, response: URLResponse?, error:Error?) in
-            var searchMovieArray:[SearchITunes] = []
-            if let data = data {
-                do {
-                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] {
-                        if let results = json["results"] as? [[String:Any]] {
-                            for dataPoint in results {
-                                if let movieObject = try? SearchITunes(json: dataPoint) {
-                                    searchMovieArray.append(movieObject)
-                                }
-                            }
-                        }
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-                completion(searchMovieArray)
-            }
-        }
-        task.resume()
-    }
+struct SearchITunesMain: Decodable {
+    var Search: [SearchITunes?]?
+    var totalResults: String?
+    var Response: String?
 }
 
 struct SearchITunesFormatted {
