@@ -34,7 +34,7 @@ class MasterViewController: UITableViewController {
 
     @objc
     func insertNewObject(_ sender: Any) {
-        performSegue(withIdentifier: "showList", sender: self)
+//        performSegue(withIdentifier: "showList", sender: self)
     }
 
     // MARK: - Segues

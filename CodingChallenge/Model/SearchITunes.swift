@@ -22,7 +22,7 @@ struct SearchITunes: Decodable {
     
     //MARK: - API Call
     
-    init(json:[String: Any]) throws {
+    init(json:[String:Any]) throws {
         guard let trackName = json["trackName"] as? String else {
             throw SerializationError.missing("Track name is missing")
         }
@@ -47,8 +47,31 @@ struct SearchITunes: Decodable {
     }
     static let basePath = "https://itunes.apple.com/search?term=star&amp;country=au&amp;media=movie&amp;all"
     
-    
-    
+    static func searchMovie (completion: @escaping ([SearchITunes]) -> ()) {
+        let url = basePath
+        let request = URLRequest(url: URL(string: url)!)
+        
+        let task = URLSession.shared.dataTask(with: request) { (data: Data?, response: URLResponse?, error:Error?) in
+            var searchMovieArray:[SearchITunes] = []
+            if let data = data {
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] {
+                        if let results = json["results"] as? [[String:Any]] {
+                            for dataPoint in results {
+                                if let movieObject = try? SearchITunes(json: dataPoint) {
+                                    searchMovieArray.append(movieObject)
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                    print(error.localizedDescription)
+                }
+                completion(searchMovieArray)
+            }
+        }
+        task.resume()
+    }
 }
 
 struct SearchITunesFormatted {
