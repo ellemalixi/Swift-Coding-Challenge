@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Alamofire
 
 class MasterViewController: UITableViewController {
 
@@ -17,10 +18,17 @@ class MasterViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        navigationItem.leftBarButtonItem = editButtonItem
+//        navigationItem.leftBarButtonItem = editButtonItem
 
-        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
-        navigationItem.rightBarButtonItem = addButton
+//        let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
+//        navigationItem.rightBarButtonItem = addButton
+        
+        SearchITunes.searchMovie { (results: [SearchITunes]) in
+            for result in results {
+                
+            }
+        }
+        
         if let split = splitViewController {
             let controllers = split.viewControllers
             detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
@@ -32,10 +40,10 @@ class MasterViewController: UITableViewController {
         super.viewWillAppear(animated)
     }
 
-    @objc
-    func insertNewObject(_ sender: Any) {
+//    @objc
+//    func insertNewObject(_ sender: Any) {
 //        performSegue(withIdentifier: "showList", sender: self)
-    }
+//    }
 
     // MARK: - Segues
 
@@ -63,6 +71,7 @@ class MasterViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // reuses cells
         let cell = tableView.dequeueReusableCell(withIdentifier: "ITunesCell", for: indexPath) as! SearchITunesUITableViewCell
 //        let object = objects[indexPath.row]
         
