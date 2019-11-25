@@ -10,9 +10,9 @@ import Foundation
 
 class Storage {
     static let shared: Storage = Storage()
-    var obj: [SearchITunes]
+    var obj: [ITunesSearchResult]
     
     private init() {
-        obj = [SearchITunes]()
+        obj = [ITunesSearchResult]()
     }
 }

@@ -9,40 +9,47 @@
 import UIKit
 
 class SearchITunesUITableViewCell: UITableViewCell {
-    var searchFormatted: SearchITunesFormatted!
-    
-    var trackName: String = ""
-    var artworkUrl60: String = ""
-    var trackPrice: String = ""
-    var primaryGenreName: String = ""
-    var longDescription: String = ""
-    
     @IBOutlet weak var trackNameLabel: UILabel!
-    @IBOutlet weak var artworkUrl60ImageView: UIImageView!
+    @IBOutlet weak var artworkUrlImageView: UIImageView!
     @IBOutlet weak var trackPriceLabel: UILabel!
     @IBOutlet weak var primaryGenreNameLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        self.restorationIdentifier = "SavedCell"
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     }
     
-    func configure(searchFormatted: SearchITunesFormatted) {
-        self.searchFormatted = searchFormatted
-        self.trackNameLabel.text = self.searchFormatted.trackName
-        self.trackPriceLabel.text = self.searchFormatted.trackPrice
-        self.primaryGenreNameLabel.text = self.searchFormatted.primaryGenreName
-        self.longDescription = self.searchFormatted.longDescription
-        
-        let url = URL(string: self.searchFormatted.artworkUrl60)
-        let data = try? Data(contentsOf: url!)
-        let img = UIImage(data: data!)
-        
-        self.artworkUrl60ImageView.image = img
+    // MARK: - Image Utility
+    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
     
+    // MARK: - Customization
+    
+    func configureCell(aTrackName:String, aPrice:String, aGenre:String, aArtworkUrl:String) {
+        self.trackNameLabel.text = aTrackName
+        self.trackNameLabel.adjustsFontSizeToFitWidth = true
+        self.trackPriceLabel.text = aPrice
+        self.primaryGenreNameLabel.text = aGenre
+        
+        let url = URL(string: aArtworkUrl)
+        
+        var artworkImage: UIImage?
+        
+        print("Download Started")
+        getData(from: url!) { data, response, error in
+            guard let data = data, error == nil else { return }
+            print(response?.suggestedFilename ?? url!.lastPathComponent)
+            print("Download Finished")
+            DispatchQueue.main.async() {
+                artworkImage = UIImage(data: data)
+                self.artworkUrlImageView.image = artworkImage
+            }
+        }
+    }
 }
